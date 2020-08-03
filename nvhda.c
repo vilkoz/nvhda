@@ -213,6 +213,15 @@ static int nvhda_proc_open(struct inode *inode, struct file *file) {
     return single_open(file, nvhda_proc_show, NULL);
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0))
+static struct proc_ops nvhda_fops = {
+    .proc_open   = nvhda_proc_open,
+    .proc_read   = seq_read,
+    .proc_write  = nvhda_proc_write,
+    .proc_lseek = seq_lseek,
+    .proc_release= single_release
+};
+#else
 static struct file_operations nvhda_fops = {
     .open   = nvhda_proc_open,
     .read   = seq_read,
@@ -220,6 +229,7 @@ static struct file_operations nvhda_fops = {
     .llseek = seq_lseek,
     .release= single_release
 };
+#endif
 
 static int __init nvhda_init(void) {
     struct proc_dir_entry *acpi_entry;
